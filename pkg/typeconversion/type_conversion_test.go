@@ -25,18 +25,18 @@ func TestPlainTypeConversion(t *testing.T) {
 			"item2",
 		},
 	}
-	fooJSON := *(*FooJSON)(fooDB) // fooDB and fooJSON share the same memory address
-	t.Logf("db=%p json=%p\n", fooDB, &fooJSON)
+	fooJSON := (*FooJSON)(fooDB) // fooDB and fooJSON share the same memory address
+	t.Logf("db=%p json=%p\n", fooDB, fooJSON)
 }
 
 // FooJSONSwapFieldsOrder is invalid because the field names are in different order
 type FooJSONSwapFieldsOrder struct {
-	Name  string   `json:"name"`
+	Name  string   `jso:"name"`
 	ID    uint64   `json:"id"`
 	Items []string `json:"items"`
 }
 
-func TestPlainTypeConversionWithSwapOrder(t *testing.T) {
+func TestPlainTypeConversionWithSwappingOrder(t *testing.T) {
 	fooDB := &FooDB{
 		ID:   1,
 		Name: "albert43",
@@ -46,8 +46,8 @@ func TestPlainTypeConversionWithSwapOrder(t *testing.T) {
 		},
 	}
 	_ = fooDB
-	// fooJSON := *(*FooJSONInvalid)(fooDB) // This will cause compile error
-	// t.Logf("db=%p json=%p\n", fooDB, &fooJSON)
+	// fooJSON := (*FooJSONSwapFieldsOrder)(fooDB) // This will cause compile error
+	// t.Logf("db=%p json=%p\n", fooDB, fooJSON)
 }
 
 type FooJSONWithExtraFields struct {
@@ -67,8 +67,8 @@ func TestWithExtraData(t *testing.T) {
 		},
 	}
 	_ = fooDB
-	// fooJSON := *(*FooJSONWithExtraFields)(fooDB) // This will cause compile error due to extra fields in target struct
-	// t.Logf("db=%p json=%p\n", fooDB, &fooJSON)
+	// fooJSON := (*FooJSONWithExtraFields)(fooDB) // This will cause compile error due to extra fields in target struct
+	// t.Logf("db=%p json=%p\n", fooDB, fooJSON)
 }
 
 type FooDBWithExtraFields struct {
@@ -89,8 +89,8 @@ func TestWithExtraData2(t *testing.T) {
 		SaveUnixTime: 123456,
 	}
 	_ = fooDB
-	// fooJSON := *(*FooJSON)(fooDB) // This will cause compile error due to extra fields in source struct
-	// t.Logf("db=%p json=%p\n", fooDB, &fooJSON)
+	// fooJSON := (*FooJSON)(fooDB) // This will cause compile error due to extra fields in source struct
+	// t.Logf("db=%p json=%p\n", fooDB, fooJSON)
 }
 
 type FooJSONWithAlterNames struct {
@@ -109,8 +109,8 @@ func TestWithAlterNames(t *testing.T) {
 		},
 	}
 	_ = fooDB
-	// fooJSON := *(*FooJSONWithAlterNames)(fooDB) // This will cause compile error due to the field name mismatch
-	// t.Logf("db=%p json=%p\n", fooDB, &fooJSON)
+	// fooJSON := (*FooJSONWithAlterNames)(fooDB) // This will cause compile error due to the field name mismatch
+	// t.Logf("db=%p json=%p\n", fooDB, fooJSON)
 }
 
 type FooDBWithExtra struct {
@@ -132,6 +132,6 @@ func TestUsingComposition(t *testing.T) {
 		SharedData:  []byte("shared data"),
 		PrivateData: []byte("private data"),
 	}
-	fooJSON := *(*FooJSON)(&fooDBWithExtra.FooDB) // valid because FooDBWithExtra has a FooDB field using composition
-	t.Logf("db=%p json=%p\n", fooDBWithExtra, &fooJSON)
+	fooJSON := (*FooJSON)(&fooDBWithExtra.FooDB) // valid because FooDBWithExtra has a FooDB field using composition
+	t.Logf("db=%p db(inside)=%p json=%p\n", fooDBWithExtra, &(fooDBWithExtra.FooDB), fooJSON)
 }
